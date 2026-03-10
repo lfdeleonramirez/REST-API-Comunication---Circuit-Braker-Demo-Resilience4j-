@@ -349,9 +349,6 @@ Las contribuciones son bienvenidas. Por favor:
 
 Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 
-## 📧 Contacto
-
-Si tienes preguntas o sugerencias, no dudes en abrir un issue en el repositorio.
 
 ---
 
