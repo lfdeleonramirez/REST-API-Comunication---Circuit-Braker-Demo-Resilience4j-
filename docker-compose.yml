@@ -1,0 +1,58 @@
+version: '3.8'
+services:
+  app:
+    # Construye la aplicacion del codigo existente  
+    build: 
+      context: ./rest-api-comunication
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'      # Limita a la mitad de 1 núcleo
+          memory: 512M     # Limite estricto de RAM
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/appdb
+      - EXTERNAL_API_URL=http://toxiproxy:8080 # La app llama a toxiproxy
+      # +Reserva 256 MB de ram al inicio +Establece un máximo de 256 mb para la aplicacion + Define el espacio por hilo 512kb
+      - JAVA_TOOL_OPTIONS=-Xms256m -Xmx256m -Xss512k
+    depends_on:
+      - db
+      - toxiproxy
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=appdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  # Este api es una simulación del funcionamiento real, si se quiere probar, unicamente se debe cambiar el api en EXTERNAL_API_URL de la app
+  external-api:
+    image: kennethreitz/httpbin
+    container_name: external-api
+    networks:
+      - app-network
+
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy
+    container_name: toxiproxy
+    command: -host 0.0.0.0 -config /config/toxiproxy.json # 👈 Forzamos a que lea el archivo
+    volumes:
+      - ./tests/json/toxiproxy.json:/config/toxiproxy.json
+    ports:
+      - "8474:8474" # Puerto de administración de Toxiproxy
+      - "8081:8080" # Puerto expuesto del proxy
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,1 @@
+curl -X POST -H "Content-Type: application/json" -d @./json/update_toxic.json http://localhost:8474/proxies/proxy_hacia_api_externo/toxics/latencia_extrema

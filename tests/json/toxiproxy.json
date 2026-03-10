@@ -1,0 +1,8 @@
+[
+  {
+    "name": "proxy_hacia_api_externo",
+    "listen": "[::]:8080",
+    "upstream": "external-api:80",
+    "enabled": true
+  }
+]
